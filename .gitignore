@@ -1,0 +1,4 @@
+.venv
+manual-model.pkl
+mlruns
+last-run-id.txt
