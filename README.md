@@ -14,3 +14,17 @@ This is a demo about ML Ops. We use the data from [machine predictive maintenanc
 ```bash
 source project.sh
 ```
+
+# Start ML Ops pipeline
+
+```bash
+source project.sh
+python automatic.py
+```
+
+# Serve ML Model
+
+```bash
+source project.sh
+./serve.sh
+```

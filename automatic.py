@@ -8,6 +8,8 @@ import time
 import mlflow
 import mlflow.sklearn
 import logging
+import requests
+import json
 
 # For this exammple:
 # - we assume there is a scheduler that run for a certain interval
@@ -23,6 +25,7 @@ INTERVAL = 5
 INIT_DATA_COUNT = 1000
 MAX_DATA_COUNT = 10000
 STEP = 100
+SERVER_REDEPLOY_URL = 'http://localhost:3000/redeploy'
 
 
 def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
@@ -80,6 +83,17 @@ def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
 
     with open('./last-run-id.txt', 'w') as f:
         f.write(active_run_id)
+
+    # ask server to use current model
+    data = json.dumps({'version': active_run_id})
+    headers = {"Content-Type": "application/json"}
+    try:
+        response = requests.post(
+            SERVER_REDEPLOY_URL, data=data, headers=headers
+        )
+        logging.info(response)
+    except Exception as e:
+        logging.error(e)
 
     mlflow.end_run()
     return active_run_id
