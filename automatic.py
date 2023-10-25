@@ -58,44 +58,43 @@ def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
             return previous_run_id
 
     # Retrain
-    mlflow.start_run(run_name='training')
+    with mlflow.start_run(run_name='training'):
 
-    # get active run
-    active_run = mlflow.active_run()
-    active_run_id = active_run.info.run_id
-    logging.info(f'💪 Start training  : {active_run_id}')
+        # get active run
+        active_run = mlflow.active_run()
+        active_run_id = active_run.info.run_id
+        logging.info(f'💪 Start training  : {active_run_id}')
 
-    # Train
-    clf = RandomForestClassifier()
-    clf.fit(X_train, y_train)
+        # Train
+        clf = RandomForestClassifier()
+        clf.fit(X_train, y_train)
 
-    # Log Model
-    mlflow.sklearn.log_model(clf, "RandomForestModel")
+        # Log Model
+        mlflow.sklearn.log_model(clf, "RandomForestModel")
 
-    # Evaluation
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+        # Evaluation
+        y_pred = clf.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
 
-    # Log Metrics
-    mlflow.log_metric("accuracy", accuracy)
+        # Log Metrics
+        mlflow.log_metric("accuracy", accuracy)
 
-    logging.info(f'💪 Finish training : {active_run_id}, accuracy: {accuracy}')
+        logging.info(f'💪 Finish training : {active_run_id}, accuracy: {accuracy}')
 
-    with open('./last-run-id.txt', 'w') as f:
-        f.write(active_run_id)
+        with open('./last-run-id.txt', 'w') as f:
+            f.write(active_run_id)
 
-    # ask server to use current model
-    data = json.dumps({'version': active_run_id})
-    headers = {"Content-Type": "application/json"}
-    try:
-        response = requests.post(
-            SERVER_REDEPLOY_URL, data=data, headers=headers
-        )
-        logging.info(response)
-    except Exception as e:
-        logging.error(e)
+        # ask server to use current model
+        data = json.dumps({'version': active_run_id})
+        headers = {"Content-Type": "application/json"}
+        try:
+            response = requests.post(
+                SERVER_REDEPLOY_URL, data=data, headers=headers
+            )
+            logging.info(response)
+        except Exception as e:
+            logging.error(e)
 
-    mlflow.end_run()
     return active_run_id
 
 
