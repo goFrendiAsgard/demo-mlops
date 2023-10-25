@@ -19,6 +19,8 @@ source project.sh
 
 # Simple ML Ops
 
+![Diagram](mlops.png)
+
 ## Start ML Ops pipeline
 
 ```bash

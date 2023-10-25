@@ -26,6 +26,7 @@ INIT_DATA_COUNT = 1000
 MAX_DATA_COUNT = 10000
 STEP = 100
 SERVER_REDEPLOY_URL = 'http://localhost:3000/redeploy'
+ACCURACY_THRESHOLD = 0.98
 
 
 def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
@@ -54,7 +55,7 @@ def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
         logging.info(
             f'🧪 Finish evaluating : {previous_run_id}, accuracy: {old_clf_accuracy}'  # noqa
         )
-        if old_clf_accuracy > 0.98:
+        if old_clf_accuracy > ACCURACY_THRESHOLD:
             return previous_run_id
 
     # Retrain
@@ -79,7 +80,9 @@ def run(previous_run_id: Optional[str], df: pd.DataFrame) -> str:
         # Log Metrics
         mlflow.log_metric("accuracy", accuracy)
 
-        logging.info(f'💪 Finish training : {active_run_id}, accuracy: {accuracy}')
+        logging.info(
+            f'💪 Finish training : {active_run_id}, accuracy: {accuracy}'
+        )
 
         with open('./last-run-id.txt', 'w') as f:
             f.write(active_run_id)
